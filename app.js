@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const MongoClient = require('mongodb').MongoClient;
+const MatchSchema = require('./schemas/MatchSchema').MatchSchema;
 
 const app = express();
 const port = 3000;
@@ -15,55 +16,30 @@ const mongooseDb = mongoose.connection;
 mongooseDb.once('open', () => {
     console.log('Successfully connected to server!');
 
-    const matchSchema = new mongoose.Schema({
-        gameId: Number,
-        gameCreation: Number
-    });
-    const Match = mongoose.model('match', matchSchema);
-    // const db = client.db(dbName);
+    const Match = mongoose.model('match', new mongoose.Schema(MatchSchema));
 
     app.post('/match', (req, res) => {
-        // db.collection('match').insertOne(req.body, (err, result) => {
-        //     if (err) {
-        //         res.status(500).send({ error: err.errmsg});
-        //         return console.log(err);
-        //     } else {
-        //         res.status(201).send({});
-        //         return console.log();
-        //     }
-
-        //     console.log('saved to database');
-        // });
-
-
-        const newMatch = new Match(req.body);
-        newMatch.save((err, newMatch) => {
-            if (err) {
-                res.status(500).send({ error: err.errmsg});
-                return console.log('is this the error');
-            } else {
-                res.status(201).send({});
-                return console.log();
-            }
-        });
+        saveMatchWithMongoose(Match, req, res);
     });
 });
 
 app.use(bodyParser.json());
 
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
-client.connect(function(err) {
-    console.log('Successfully connected to server!');
 
-    const db = client.db(dbName);
-
-    app.post('/match', (req, res) => {
-        saveMatchToMongo(db, req, res);
-    });
-    
-});
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+function saveMatchWithMongoose(SchemaName, req, res) {
+    const newMatch = new SchemaName(req.body);
+        newMatch.save((err, newMatch) => {
+            if (err) {
+                res.status(500).send({ error: err.errmsg});
+                return console.log(`Issue saving match: ${err.errmsg}`);
+            } else {
+                res.status(201).send({});
+                return console.log();
+            }
+        });
+}
 
 function saveMatchToMongo(db, req, res) {
     db.collection('match').insertOne(req.body, (err, result) => {
@@ -78,6 +54,7 @@ function saveMatchToMongo(db, req, res) {
         console.log('saved to database');
     });
 }
+
 
 async function createIndex(db) {
     db.collection('match').createIndex("gameId", { unique: true }, (err) => {
