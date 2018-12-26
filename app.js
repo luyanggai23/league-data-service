@@ -58,23 +58,26 @@ client.connect(function(err) {
     const db = client.db(dbName);
 
     app.post('/match', (req, res) => {
-        db.collection('match').insertOne(req.body, (err, result) => {
-            if (err) {
-                res.status(500).send({ error: err.errmsg});
-                return console.log(err);
-            } else {
-                res.status(201).send({});
-                return console.log();
-            }
-
-            console.log('saved to database');
-        });
-
+        saveMatchToMongo(db, req, res);
     });
     
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+function saveMatchToMongo(db, req, res) {
+    db.collection('match').insertOne(req.body, (err, result) => {
+        if (err) {
+            res.status(500).send({ error: err.errmsg});
+            return console.log(err);
+        } else {
+            res.status(201).send({});
+            return console.log();
+        }
+
+        console.log('saved to database');
+    });
+}
 
 async function createIndex(db) {
     db.collection('match').createIndex("gameId", { unique: true }, (err) => {
