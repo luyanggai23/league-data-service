@@ -1,27 +1,32 @@
+const { writeLog } = require('./../log/logger');
+
 function saveMatchWithMongoose(SchemaName, req, res) {
+    const matchId = req.body.gameId;
     const newMatch = new SchemaName(req.body);
-        newMatch.save((err, newMatch) => {
-            if (err) {
-                res.status(500).send({ error: err.errmsg});
-                return console.log(`Issue saving match: ${err.errmsg}`);
-            } else {
-                res.status(201).send({});
-                return console.log();
-            }
-        });
+
+    newMatch.save((err, newMatch) => {
+        if (err) {
+            res.status(500).send({ error: err.errmsg});
+            writeLog('error', `saveMatch failed with id: ${matchId} and message: ${err.errmsg}`);
+        } else {
+            res.status(201).send({});
+            writeLog('info', `saveMatch succeeded with id: ${matchId}`);
+        }
+    });
 }
 
 function saveSummoner(SchemaName, req, res) {
+    const summonerId = req.body.accountId;
     const newSummoner = new SchemaName(req.body);
     newSummoner.save((err, newSummoner) => {
-            if (err) {
-                res.status(500).send({ error: err.errmsg});
-                return console.log(`Issue saving match: ${err.errmsg}`);
-            } else {
-                res.status(201).send({});
-                return console.log();
-            }
-        });
+        if (err) {
+            res.status(500).send({ error: err.errmsg});
+            writeLog('error', `saveSummoner failed with id: ${summonerId} and message: ${err.errmsg}`);
+        } else {
+            res.status(201).send({});
+            writeLog('info', `saveSummoner succeeded with id: ${summonerId}`);
+        }
+    });
 }
 
 function saveMatchToMongo(db, req, res) {
