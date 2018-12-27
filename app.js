@@ -23,6 +23,10 @@ mongooseDb.once('open', () => {
     const Match = mongoose.model('match', new mongoose.Schema(MatchSchema));
     const Summoner = mongoose.model('summoner', new mongoose.Schema(SummonerSchema));
 
+    app.get('/match/:matchId', (req, res) => {
+        mongoUtils.getMatchByMatchId(Match, req, res);
+    });
+
     app.post('/match', (req, res) => {
         mongoUtils.saveMatchWithMongoose(Match, req, res);
     });

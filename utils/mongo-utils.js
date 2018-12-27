@@ -1,5 +1,20 @@
 const { writeLog } = require('./../log/logger');
 
+function getMatchByMatchId(SchemaName, req, res) {
+    const matchId = req.params.matchId;
+
+    SchemaName.findOne({ 'gameId': matchId }, (err, match) => {
+        if (err || !match) {
+            const message = `404 - getMatchByMatchId failed with id: ${matchId}`
+            res.status(404).send(message);
+            writeLog('error', message);
+        } else {
+            res.status(200).send(match);
+            writeLog('info', `getMatchByMatchId succeeded with id: ${matchId}`);
+        }
+    });
+}
+
 function saveMatchWithMongoose(SchemaName, req, res) {
     const matchId = req.body.gameId;
     const newMatch = new SchemaName(req.body);
@@ -85,3 +100,4 @@ module.exports.createIndex = createIndex;
 module.exports.saveMatchWithMongoose = saveMatchWithMongoose;
 module.exports.saveSummoner = saveSummoner;
 module.exports.saveMatchToMongo = saveMatchToMongo;
+module.exports.getMatchByMatchId = getMatchByMatchId;
